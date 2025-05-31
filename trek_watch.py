@@ -46,9 +46,10 @@ if new:
     msg.set_content("\n".join(lines))
 
     host  = os.environ.get("SMTP_HOST", "smtp.gmail.com")
-    port  = int(os.environ.get("SMTP_PORT", "465"))
+    port  = int(os.environ.get("SMTP_PORT", 465))
     user  = os.environ["SMTP_USER"]
     pwd   = os.environ["SMTP_PASS"]
+
 
     with smtplib.SMTP_SSL(host, port, context=ssl.create_default_context()) as s:
         s.login(user, pwd)
