@@ -45,7 +45,7 @@ if new:
     msg["To"]      = os.environ["MAIL_TO"]
     msg.set_content("\n".join(lines))
 
-    host  = os.environ.get("SMTP_HOST", "smtp.gmail.com")
+    host  = "smtp.gmail.com"
     port  = 465
     user  = os.environ["SMTP_USER"]
     pwd   = os.environ["SMTP_PASS"]
