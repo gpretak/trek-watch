@@ -1,9 +1,10 @@
+# .github/workflows/trek-watch.yml  (working version)
 name: Trek Watch
 
 on:
   schedule:
-    - cron:  '0 */2 * * *'   # every 2 h (cron uses UTC)
-  workflow_dispatch:         # ← allows a manual “Run workflow”
+    - cron: '0 */2 * * *'        # every 2 h  (UTC)
+  workflow_dispatch:
 
 jobs:
   watch:
@@ -11,11 +12,13 @@ jobs:
     steps:
 
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: true          # needed so we can push
 
       - uses: actions/setup-python@v5
         with: { python-version: '3.11' }
 
-      - name: Install deps
+      - name: Install Python deps
         run: pip install requests pandas
 
       - name: Run watcher
@@ -28,12 +31,14 @@ jobs:
           MAIL_FROM:  ${{ secrets.MAIL_FROM }}
           MAIL_TO:    ${{ secrets.MAIL_TO }}
 
-      - name: Commit updated state
-        if: |
-          success() && (git status --porcelain | grep trek_seen.json)
+      - name: Commit updated state file if it changed
         run: |
-          git config --global user.email "action@github.com"
-          git config --global user.name  "GitHub Actions"
-          git add trek_seen.json
-          git commit -m "Update seen SKUs $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-          git push
+          if git diff --quiet trek_seen.json; then
+            echo "No new SKUs – nothing to commit."
+          else
+            git config --global user.email "action@github.com"
+            git config --global user.name  "GitHub Actions"
+            git add trek_seen.json
+            git commit -m "Update seen SKUs $(date -u +'%Y-%m-%dT%H:%M:%SZ')" || true
+            git push
+          fi
