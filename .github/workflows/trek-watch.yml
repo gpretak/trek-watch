@@ -1,44 +1,58 @@
-# .github/workflows/trek-watch.yml  (working version)
+# .github/workflows/trek-watch.yml
 name: Trek Watch
 
 on:
+  # every 2 h at the top of the hour (UTC)
   schedule:
-    - cron: '0 */2 * * *'        # every 2 h  (UTC)
+    - cron: '0 */2 * * *'
+  # manual trigger from the Actions tab
   workflow_dispatch:
 
 jobs:
   watch:
     runs-on: ubuntu-latest
+
+    # you need write permission so the job can push the updated JSON
+    permissions:
+      contents: write
+
     steps:
-
-      - uses: actions/checkout@v4
+      # ──────────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          persist-credentials: true          # needed so we can push
+          persist-credentials: true     # keep the token for `git push`
+          fetch-depth: 1
 
-      - uses: actions/setup-python@v5
-        with: { python-version: '3.11' }
+      # ──────────────────────────────────────────────────────────────
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-      - name: Install Python deps
+      - name: Install Python dependencies
         run: pip install requests pandas
 
-      - name: Run watcher
-        run: python trek_watch.py
+      # ──────────────────────────────────────────────────────────────
+      - name: Run Trek watcher
         env:
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
-          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}     # may be empty → script falls back to 465
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           MAIL_FROM:  ${{ secrets.MAIL_FROM }}
           MAIL_TO:    ${{ secrets.MAIL_TO }}
+        run: python trek_watch.py
 
+      # ──────────────────────────────────────────────────────────────
       - name: Commit updated state file if it changed
         run: |
           if git diff --quiet trek_seen.json; then
             echo "No new SKUs – nothing to commit."
           else
-            git config --global user.email "action@github.com"
-            git config --global user.name  "GitHub Actions"
+            git config --global user.name  "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
             git add trek_seen.json
-            git commit -m "Update seen SKUs $(date -u +'%Y-%m-%dT%H:%M:%SZ')" || true
+            git commit -m "chore: update seen SKUs $(date -u +'%Y-%m-%dT%H:%M:%SZ')" || true
             git push
           fi
