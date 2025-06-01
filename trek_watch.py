@@ -46,7 +46,7 @@ if new:
     msg.set_content("\n".join(lines))
 
     host  = "smtp.gmail.com"
-    port  = 587
+    port  = 465
     user  = os.environ["SMTP_USER"]
     pwd   = os.environ["SMTP_PASS"]
 
