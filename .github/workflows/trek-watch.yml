@@ -43,6 +43,17 @@ jobs:
           MAIL_FROM:  ${{ secrets.MAIL_FROM }}
           MAIL_TO:    ${{ secrets.MAIL_TO }}
         run: python trek_watch.py
+
+      - name: DEBUG – hex-dump creds (safe)
+        run: |
+          echo "USER bytes:"
+          printf '%s' "$SMTP_USER" | od -An -tx1
+          echo -e "\nPASS bytes (length=${#SMTP_PASS}):"
+          printf '%s' "$SMTP_PASS" | od -An -tx1
+        env:
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+
       
       # ──────────────────────────────────────────────────────────────
       - name: Commit updated state file if it changed
