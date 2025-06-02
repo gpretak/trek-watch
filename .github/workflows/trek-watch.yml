@@ -43,6 +43,15 @@ jobs:
           MAIL_FROM:  ${{ secrets.MAIL_FROM }}
           MAIL_TO:    ${{ secrets.MAIL_TO }}
         run: python trek_watch.py
+      - name: DEBUG – show env presence & length
+        run: |
+          echo "USER present?   ${SMTP_USER:+yes}"
+          echo "PASS length → ${#SMTP_PASS}"
+          echo "HOST=${SMTP_HOST}"
+        env:
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
 
       # ──────────────────────────────────────────────────────────────
       - name: Commit updated state file if it changed
