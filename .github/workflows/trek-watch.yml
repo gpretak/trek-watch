@@ -4,7 +4,7 @@ name: Trek Watch
 on:
   # every 2 h at the top of the hour (UTC)
   schedule:
-    - cron: '0 */2 * * *'
+    - cron: '*/30 * * * *'
   # manual trigger from the Actions tab
   workflow_dispatch:
 
