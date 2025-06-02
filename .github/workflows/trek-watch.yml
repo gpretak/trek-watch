@@ -11,6 +11,7 @@ on:
 jobs:
   watch:
     runs-on: ubuntu-latest
+    environment: trek-watch
 
     # you need write permission so the job can push the updated JSON
     permissions:
