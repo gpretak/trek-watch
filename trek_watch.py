@@ -47,8 +47,9 @@ if new:
 
     host  = "smtp.gmail.com"
     port  = 465
-    user  = os.environ["SMTP_USER"]
-    pwd   = os.environ["SMTP_PASS"]
+    user = (os.getenv("SMTP_USER") or "").strip()
+    pwd  = (os.getenv("SMTP_PASS") or "").strip()
+
 
 
     with smtplib.SMTP_SSL(host, port, context=ssl.create_default_context()) as s:
